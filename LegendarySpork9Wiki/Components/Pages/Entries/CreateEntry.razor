@@ -47,6 +47,20 @@
                 </div>
 
                 <div class="mb-3">
+                    <label for="template" class="form-label">Template</label>
+                    <select class="form-select" id="template" value="@_selectedTemplate"
+                            @onchange="OnTemplateSelected"
+                            disabled="@(!_templateNames.Any())"
+                            style="@StyleConverter.GetInputDarkMode(User.DarkMode)">
+                        <option value="">@(_templateNames.Any() ? "Select a template..." : "No templates available")</option>
+                        @foreach (var template in _templateNames)
+                        {
+                            <option value="@template">@template</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="mb-3">
                     <label for="content" class="form-label">Content (HTML)</label>
                     <textarea class="form-control" id="content" rows="15" @bind="_content"
                               style="@StyleConverter.GetInputDarkMode(User.DarkMode)"></textarea>

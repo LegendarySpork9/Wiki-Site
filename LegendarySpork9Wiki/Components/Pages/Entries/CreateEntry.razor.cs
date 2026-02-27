@@ -10,6 +10,9 @@ namespace LegendarySpork9Wiki.Components.Pages.Entries
         private APIService APIService { get; set; } = default!;
 
         [Inject]
+        private TemplateService TemplateService { get; set; } = default!;
+
+        [Inject]
         private UserModel User { get; set; } = default!;
 
         [Inject]
@@ -20,6 +23,8 @@ namespace LegendarySpork9Wiki.Components.Pages.Entries
 
         private List<CategoryModel>? _categories;
         private List<CategoryModel> _flatCategories = new();
+        private List<string> _templateNames = new();
+        private string _selectedTemplate = string.Empty;
         private string _title = string.Empty;
         private string _selectedCategoryId = string.Empty;
         private string _summary = string.Empty;
@@ -32,6 +37,7 @@ namespace LegendarySpork9Wiki.Components.Pages.Entries
             User.OnDarkModeChanged += StateHasChanged;
             _categories = await APIService.GetCategories();
             _flatCategories = FlattenCategories(_categories);
+            _templateNames = TemplateService.GetTemplateNames();
 
             if (!string.IsNullOrEmpty(CategoryId))
             {
@@ -60,6 +66,16 @@ namespace LegendarySpork9Wiki.Components.Pages.Entries
             }
 
             return result;
+        }
+
+        private async Task OnTemplateSelected(ChangeEventArgs e)
+        {
+            _selectedTemplate = e.Value?.ToString() ?? string.Empty;
+
+            if (!string.IsNullOrEmpty(_selectedTemplate))
+            {
+                _content = await TemplateService.GetTemplateContent(_selectedTemplate);
+            }
         }
 
         private async Task HandleCreate()
