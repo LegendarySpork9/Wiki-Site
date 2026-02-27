@@ -1,0 +1,48 @@
+@page "/"
+
+<PageTitle>Knowledge Base</PageTitle>
+
+<div class="home-container">
+    <div class="welcome-section" style="@StyleConverter.GetCardDarkMode(User.DarkMode)">
+        <h1>Welcome to the Knowledge Base</h1>
+        <p class="lead">A repository of lore, characters, and stories from games and books. Browse the categories in the sidebar to explore, or check out the recent entries below.</p>
+    </div>
+
+    <h2 class="mt-4 mb-3">Recent Entries</h2>
+
+    @if (_loading)
+    {
+        <div class="text-center mt-4">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+    }
+    else if (_recentEntries.Any())
+    {
+        <div class="entry-grid">
+            @foreach (var entry in _recentEntries)
+            {
+                <div class="card entry-card" style="@StyleConverter.GetCardDarkMode(User.DarkMode)">
+                    @if (!string.IsNullOrEmpty(entry.ThumbnailUrl))
+                    {
+                        <img src="@entry.ThumbnailUrl" class="card-img-top entry-thumbnail" alt="@entry.Title" />
+                    }
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <a href="/entry/@entry.Id" style="@StyleConverter.GetLinkDarkMode(User.DarkMode)">@entry.Title</a>
+                        </h5>
+                        <p class="card-text text-muted" style="@StyleConverter.GetTextMutedDarkMode(User.DarkMode)">
+                            <small>@entry.CategoryName &bull; @entry.DateModified.ToString("dd MMM yyyy")</small>
+                        </p>
+                        <p class="card-text">@entry.Summary</p>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <p>No entries found.</p>
+    }
+</div>

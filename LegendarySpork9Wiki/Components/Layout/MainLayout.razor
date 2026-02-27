@@ -1,0 +1,43 @@
+@inherits LayoutComponentBase
+
+<div class="page" style="@StyleConverter.GetBodyDarkMode(User.DarkMode)">
+    <div class="sidebar" style="@StyleConverter.GetNavMenuDarkMode(User.DarkMode)">
+        <NavMenu />
+    </div>
+
+    <main>
+        <div class="top-row px-4" style="@StyleConverter.GetTopBarDarkMode(User.DarkMode)">
+            <button class="btn btn-sm btn-outline-secondary dark-mode-toggle" @onclick="ToggleDarkMode" title="Toggle dark mode">
+                @if (User.DarkMode)
+                {
+                    <span>&#9788;</span>
+                }
+                else
+                {
+                    <span>&#9789;</span>
+                }
+            </button>
+
+            @if (User.IsLoggedIn)
+            {
+                <a href="/account" style="@StyleConverter.GetLinkDarkMode(User.DarkMode)">Account</a>
+            }
+            else
+            {
+                <a href="/login" style="@StyleConverter.GetLinkDarkMode(User.DarkMode)">Login</a>
+            }
+        </div>
+
+        <article class="content px-4">
+            <div class="content-center">
+                @Body
+            </div>
+        </article>
+    </main>
+</div>
+
+<div id="blazor-error-ui">
+    An unhandled error has occurred.
+    <a href="" class="reload">Reload</a>
+    <a class="dismiss">X</a>
+</div>

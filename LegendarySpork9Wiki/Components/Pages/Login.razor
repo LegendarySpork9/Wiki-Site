@@ -1,0 +1,44 @@
+@page "/login"
+@layout LegendarySpork9Wiki.Components.Layout.BlankLayout
+
+<PageTitle>Login - Knowledge Base</PageTitle>
+
+<div class="login-container">
+    <div class="login-card">
+        <h2 class="text-center mb-4">Knowledge Base Login</h2>
+
+        @if (!string.IsNullOrEmpty(_errorMessage))
+        {
+            <div class="alert alert-danger" role="alert">
+                @_errorMessage
+            </div>
+        }
+
+        <div class="mb-3">
+            <label for="username" class="form-label">Username</label>
+            <input type="text" class="form-control" id="username" @bind="_username" @bind:event="oninput" disabled="@_loading" />
+        </div>
+
+        <div class="mb-3">
+            <label for="password" class="form-label">Password</label>
+            <input type="password" class="form-control" id="password" @bind="_password" @bind:event="oninput"
+                   @onkeydown="HandleKeyDown" disabled="@_loading" />
+        </div>
+
+        <button class="btn btn-primary w-100" @onclick="HandleLogin" disabled="@_loading">
+            @if (_loading)
+            {
+                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                <span>Logging in...</span>
+            }
+            else
+            {
+                <span>Login</span>
+            }
+        </button>
+
+        <div class="text-center mt-3">
+            <a href="/">Return to Home</a>
+        </div>
+    </div>
+</div>

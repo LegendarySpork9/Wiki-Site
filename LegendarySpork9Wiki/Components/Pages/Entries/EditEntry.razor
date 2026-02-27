@@ -1,0 +1,78 @@
+@page "/entries/edit"
+
+<PageTitle>Edit Entry - Knowledge Base</PageTitle>
+
+<div class="edit-entry-container">
+    <h1>Edit Entry</h1>
+
+    @if (!User.IsLoggedIn || !User.Admin)
+    {
+        <div class="alert alert-warning">You must be logged in as an admin to edit entries.</div>
+    }
+    else if (_loading)
+    {
+        <div class="text-center mt-4">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+    }
+    else if (_entry == null)
+    {
+        <div class="alert alert-warning">Entry not found.</div>
+    }
+    else
+    {
+        @if (!string.IsNullOrEmpty(_message))
+        {
+            <div class="alert @(_isError ? "alert-danger" : "alert-success")">@_message</div>
+        }
+
+        <div class="card" style="@StyleConverter.GetCardDarkMode(User.DarkMode)">
+            <div class="card-body">
+                <div class="mb-3">
+                    <label for="title" class="form-label">Title</label>
+                    <input type="text" class="form-control" id="title" @bind="_title"
+                           style="@StyleConverter.GetInputDarkMode(User.DarkMode)" />
+                </div>
+
+                <div class="mb-3">
+                    <label for="category" class="form-label">Category</label>
+                    <select class="form-select" id="category" @bind="_selectedCategoryId"
+                            style="@StyleConverter.GetInputDarkMode(User.DarkMode)">
+                        <option value="">Select a category...</option>
+                        @foreach (var cat in _flatCategories)
+                        {
+                            <option value="@cat.Id">@cat.Name</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label for="summary" class="form-label">Summary</label>
+                    <input type="text" class="form-control" id="summary" @bind="_summary"
+                           style="@StyleConverter.GetInputDarkMode(User.DarkMode)" />
+                </div>
+
+                <div class="mb-3">
+                    <label for="content" class="form-label">Content (HTML)</label>
+                    <textarea class="form-control" id="content" rows="15" @bind="_content"
+                              style="@StyleConverter.GetInputDarkMode(User.DarkMode)"></textarea>
+                </div>
+
+                <button class="btn btn-primary" @onclick="HandleSave" disabled="@_saving">
+                    @if (_saving)
+                    {
+                        <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                        <span>Saving...</span>
+                    }
+                    else
+                    {
+                        <span>Save Changes</span>
+                    }
+                </button>
+                <a href="/entry/@EntryId" class="btn btn-outline-secondary ms-2">Cancel</a>
+            </div>
+        </div>
+    }
+</div>

@@ -1,0 +1,59 @@
+@page "/entry/{EntryId}"
+
+<PageTitle>@(_entry?.Title ?? "Entry") - Knowledge Base</PageTitle>
+
+<div class="entry-container">
+    @if (_loading)
+    {
+        <div class="text-center mt-4">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+    }
+    else if (_entry != null)
+    {
+        <nav aria-label="breadcrumb" class="mb-3">
+            <ol class="breadcrumb" style="@StyleConverter.GetCardDarkMode(User.DarkMode)">
+                <li class="breadcrumb-item"><a href="/" style="@StyleConverter.GetLinkDarkMode(User.DarkMode)">Home</a></li>
+                <li class="breadcrumb-item">
+                    <a href="/category/@_entry.CategoryId" style="@StyleConverter.GetLinkDarkMode(User.DarkMode)">@_entry.CategoryName</a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">@_entry.Title</li>
+            </ol>
+        </nav>
+
+        <article class="wiki-article" style="@StyleConverter.GetCardDarkMode(User.DarkMode)">
+            <header class="article-header">
+                <h1>@_entry.Title</h1>
+                <div class="article-meta text-muted" style="@StyleConverter.GetTextMutedDarkMode(User.DarkMode)">
+                    <span>By @_entry.Author</span>
+                    <span class="mx-2">&bull;</span>
+                    <span>Created @_entry.DateCreated.ToString("dd MMM yyyy")</span>
+                    @if (_entry.DateModified != _entry.DateCreated)
+                    {
+                        <span class="mx-2">&bull;</span>
+                        <span>Updated @_entry.DateModified.ToString("dd MMM yyyy")</span>
+                    }
+                </div>
+
+                @if (User is { IsLoggedIn: true, Admin: true })
+                {
+                    <div class="mt-2">
+                        <a href="/entries/edit?entryId=@_entry.Id" class="btn btn-outline-primary btn-sm">Edit</a>
+                    </div>
+                }
+            </header>
+
+            <hr />
+
+            <div class="article-content">
+                @((MarkupString)_entry.Content)
+            </div>
+        </article>
+    }
+    else
+    {
+        <div class="alert alert-warning">Entry not found.</div>
+    }
+</div>

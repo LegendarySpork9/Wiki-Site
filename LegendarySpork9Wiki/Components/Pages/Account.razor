@@ -1,0 +1,72 @@
+@page "/account"
+
+<PageTitle>Account - Knowledge Base</PageTitle>
+
+<div class="account-container">
+    <h1>Account Settings</h1>
+
+    @if (!User.IsLoggedIn)
+    {
+        <div class="alert alert-warning">
+            You must be logged in to access account settings.
+            <a href="/login">Login here</a>.
+        </div>
+    }
+    else
+    {
+        @if (!string.IsNullOrEmpty(_message))
+        {
+            <div class="alert @(_isError ? "alert-danger" : "alert-success")" role="alert">
+                @_message
+            </div>
+        }
+
+        <div class="card" style="@StyleConverter.GetCardDarkMode(User.DarkMode)">
+            <div class="card-body">
+                <div class="row mb-3">
+                    <label for="username" class="col-sm-3 col-form-label">Username</label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" id="username" @bind="_username"
+                               style="@StyleConverter.GetInputDarkMode(User.DarkMode)" />
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <label for="password" class="col-sm-3 col-form-label">Password</label>
+                    <div class="col-sm-9">
+                        <input type="password" class="form-control" id="password" @bind="_password"
+                               placeholder="Leave blank to keep current"
+                               style="@StyleConverter.GetInputDarkMode(User.DarkMode)" />
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <label class="col-sm-3 col-form-label">Dark Mode</label>
+                    <div class="col-sm-9 d-flex align-items-center">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="darkModeToggle"
+                                   checked="@User.DarkMode" @onchange="ToggleDarkMode" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-9 offset-sm-3 d-flex gap-2">
+                        <button class="btn btn-primary" @onclick="SaveSettings" disabled="@_saving">
+                            @if (_saving)
+                            {
+                                <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                                <span>Saving...</span>
+                            }
+                            else
+                            {
+                                <span>Save</span>
+                            }
+                        </button>
+                        <button class="btn btn-outline-danger" @onclick="Logout">Log Out</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>

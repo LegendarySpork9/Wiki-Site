@@ -1,0 +1,13 @@
+.create-entry-container {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.create-entry-container h1 {
+    margin-bottom: 1.5rem;
+}
+
+textarea.form-control {
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 0.9rem;
+}

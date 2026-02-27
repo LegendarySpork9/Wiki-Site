@@ -1,0 +1,13 @@
+# Build
+**[Bb]in/
+
+# Odds
+/.vs/
+*/.vs/
+**/.vs/
+
+# Obj
+**[Oo]bj/
+
+# Publish Profiles
+**[Pp]ublish[Pp]rofiles

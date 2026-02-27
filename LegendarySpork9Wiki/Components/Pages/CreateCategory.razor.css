@@ -1,0 +1,8 @@
+.create-category-container {
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.create-category-container h1 {
+    margin-bottom: 1.5rem;
+}

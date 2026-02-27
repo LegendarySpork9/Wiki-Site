@@ -1,0 +1,7 @@
+{
+  "title": "{title}",
+  "content": "{content}",
+  "categoryId": "{categoryId}",
+  "author": "{author}",
+  "summary": "{summary}"
+}

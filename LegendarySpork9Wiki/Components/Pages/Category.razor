@@ -1,0 +1,125 @@
+@page "/category/{CategoryId}"
+
+<PageTitle>@(_category?.Name ?? "Category") - Knowledge Base</PageTitle>
+
+<div class="category-container">
+    @if (_loading)
+    {
+        <div class="text-center mt-4">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+    }
+    else if (_category != null)
+    {
+        <div class="category-header" style="@StyleConverter.GetCardDarkMode(User.DarkMode)">
+            <h1>@_category.Name</h1>
+            <p class="lead">@_category.Description</p>
+        </div>
+
+        @if (_rootCategory != null && _rootCategory.SubCategories.Any())
+        {
+            <div class="subcategories mt-3 mb-3">
+                <div class="d-flex flex-wrap gap-2">
+                    <div class="dropdown">
+                        <button class="btn btn-outline-secondary dropdown-toggle"
+                                type="button"
+                                data-bs-toggle="dropdown"
+                                aria-expanded="false"
+                                style="@(User.DarkMode ? "color: deepskyblue; border-color: deepskyblue;" : "")">
+                            @_category.Name
+                        </button>
+                        <ul class="dropdown-menu" style="@StyleConverter.GetCardDarkMode(User.DarkMode)">
+                            <li>
+                                <a class="dropdown-item @(_rootCategory.Id == CategoryId ? "active" : "")" href="/category/@_rootCategory.Id"
+                                   style="@(User.DarkMode && _rootCategory.Id != CategoryId ? "color: #D0D0D0;" : "")">
+                                    @_rootCategory.Name
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider" style="@(User.DarkMode ? "border-color: #555;" : "")" /></li>
+                            @foreach (var sub in _rootCategory.SubCategories)
+                            {
+                                <li>
+                                    <a class="dropdown-item @(sub.Id == CategoryId ? "active" : "")" href="/category/@sub.Id"
+                                       style="@(User.DarkMode && sub.Id != CategoryId ? "color: #D0D0D0;" : "")">
+                                        @sub.Name
+                                    </a>
+                                </li>
+                                @if (sub.SubCategories.Any())
+                                {
+                                    @foreach (var subSub in sub.SubCategories)
+                                    {
+                                        <li>
+                                            <a class="dropdown-item ps-5 @(subSub.Id == CategoryId ? "active" : "")" href="/category/@subSub.Id"
+                                               style="@(User.DarkMode && subSub.Id != CategoryId ? "color: #D0D0D0;" : "")">
+                                                @subSub.Name
+                                            </a>
+                                        </li>
+                                    }
+                                }
+                            }
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        }
+
+        @if (User is { IsLoggedIn: true, Admin: true })
+        {
+            <div class="mb-3">
+                <a href="/entries/create?categoryId=@CategoryId" class="btn btn-primary btn-sm">New Entry</a>
+            </div>
+        }
+
+        @if (_entries != null && _entries.Entries.Any())
+        {
+            <div class="entry-grid">
+                @foreach (var entry in _entries.Entries)
+                {
+                    <div class="card entry-card" style="@StyleConverter.GetCardDarkMode(User.DarkMode)">
+                        @if (!string.IsNullOrEmpty(entry.ThumbnailUrl))
+                        {
+                            <img src="@entry.ThumbnailUrl" class="card-img-top entry-thumbnail" alt="@entry.Title" />
+                        }
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <a href="/entry/@entry.Id" style="@StyleConverter.GetLinkDarkMode(User.DarkMode)">@entry.Title</a>
+                            </h5>
+                            <p class="card-text text-muted" style="@StyleConverter.GetTextMutedDarkMode(User.DarkMode)">
+                                <small>@entry.Author &bull; @entry.DateModified.ToString("dd MMM yyyy")</small>
+                            </p>
+                            <p class="card-text">@entry.Summary</p>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            @if (_entries.MultiplePages)
+            {
+                <nav class="mt-3">
+                    <ul class="pagination">
+                        @for (int i = 1; i <= _entries.PageCount; i++)
+                        {
+                            int pageNum = i;
+                            <li class="page-item @(pageNum == _currentPage ? "active" : "")">
+                                <button class="page-link" @onclick="() => LoadPage(pageNum)"
+                                        style="@StyleConverter.GetCardDarkMode(User.DarkMode)">
+                                    @pageNum
+                                </button>
+                            </li>
+                        }
+                    </ul>
+                </nav>
+            }
+        }
+        else
+        {
+            <p class="mt-3">No entries in this category yet.</p>
+        }
+    }
+    else
+    {
+        <div class="alert alert-warning">Category not found.</div>
+    }
+</div>
