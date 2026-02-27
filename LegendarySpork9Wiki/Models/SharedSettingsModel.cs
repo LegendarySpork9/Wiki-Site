@@ -8,5 +8,7 @@ namespace LegendarySpork9Wiki.Models
         public string Endpoints { get; set; } = string.Empty;
         public string PayloadLocation { get; set; } = "Payload";
         public string RefreshTime { get; set; } = "30";
+        public string ImageStoragePath { get; set; } = string.Empty;
+        public string AllowedImageFormats { get; set; } = ".jpg,.jpeg,.png,.gif,.webp,.svg";
     }
 }

@@ -363,9 +363,191 @@ namespace LegendarySpork9Wiki.Services
 
         #endregion
 
+        #region Images
+
+        private const int ImagesPerPage = 8;
+
+        public async Task<APIImagesModel> GetImages(int pageNumber = 1)
+        {
+            if (UseDummyData) return GetDummyImages(pageNumber);
+
+            string? response = await MakeRequestAsync($"images?page={pageNumber}");
+
+            if (!string.IsNullOrEmpty(response))
+            {
+                return JsonConvert.DeserializeObject<APIImagesModel>(response) ?? new APIImagesModel { APICalled = true };
+            }
+
+            return new APIImagesModel { APICalled = true };
+        }
+
+        public async Task<ImageModel?> RegisterImage(string fileName, string extension, long fileSize, string url)
+        {
+            if (UseDummyData)
+            {
+                var newImage = new ImageModel
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    FileName = fileName,
+                    Extension = extension,
+                    FileSize = fileSize,
+                    Url = url,
+                    DateCreated = DateTime.Now,
+                    DateUploaded = DateTime.Now
+                };
+
+                _dummyImages.Add(newImage);
+                return newImage;
+            }
+
+            try
+            {
+                string payloadPath = Path.Combine(_settings.PayloadLocation, "RegisterImage.json");
+                string payload = File.ReadAllText(payloadPath)
+                    .Replace("{fileName}", fileName)
+                    .Replace("{extension}", extension)
+                    .Replace("{fileSize}", fileSize.ToString())
+                    .Replace("{url}", url);
+
+                string? response = await MakeRequestAsync("images", Method.Post, payload);
+
+                if (!string.IsNullOrEmpty(response))
+                {
+                    return JsonConvert.DeserializeObject<ImageModel>(response);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("RegisterImage failed", ex);
+            }
+
+            return null;
+        }
+
+        public async Task<bool> DeleteImage(string imageId)
+        {
+            if (UseDummyData)
+            {
+                _dummyImages.RemoveAll(i => i.Id == imageId);
+                return true;
+            }
+
+            try
+            {
+                string? response = await MakeRequestAsync($"images/{imageId}", Method.Delete);
+                return response != null;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("DeleteImage failed", ex);
+                return false;
+            }
+        }
+
+        #endregion
+
         #region Dummy Data
 
         private static readonly string DummyAdminPasswordHash = Functions.HashFunction.ComputeSHA512("admin");
+
+        private List<ImageModel> _dummyImages = new List<ImageModel>
+        {
+            new ImageModel
+            {
+                Id = "img-1",
+                FileName = "uss-cheyenne",
+                Extension = ".jpg",
+                FileSize = 2516582,
+                Url = "https://placehold.co/800x300/1a1a2e/deepskyblue?text=USS+Cheyenne+(SSN-773)",
+                DateCreated = new DateTime(2024, 6, 10),
+                DateUploaded = new DateTime(2024, 6, 15)
+            },
+            new ImageModel
+            {
+                Id = "img-2",
+                FileName = "naval-academy-graduation",
+                Extension = ".png",
+                FileSize = 1887436,
+                Url = "https://placehold.co/400x250/16213e/87ceeb?text=Naval+Academy+88",
+                DateCreated = new DateTime(2024, 5, 8),
+                DateUploaded = new DateTime(2024, 5, 10)
+            },
+            new ImageModel
+            {
+                Id = "img-3",
+                FileName = "south-china-sea-map",
+                Extension = ".jpg",
+                FileSize = 3250585,
+                Url = "https://placehold.co/800x300/16213e/87ceeb?text=South+China+Sea+Theatre",
+                DateCreated = new DateTime(2024, 7, 1),
+                DateUploaded = new DateTime(2024, 7, 5)
+            },
+            new ImageModel
+            {
+                Id = "img-4",
+                FileName = "sonar-display",
+                Extension = ".png",
+                FileSize = 978944,
+                Url = "https://placehold.co/400x250/0a2a4a/6cb4d9?text=Sonar+Operations",
+                DateCreated = new DateTime(2024, 7, 18),
+                DateUploaded = new DateTime(2024, 7, 20)
+            },
+            new ImageModel
+            {
+                Id = "img-5",
+                FileName = "mystery-lake-day1",
+                Extension = ".jpg",
+                FileSize = 2831155,
+                Url = "https://placehold.co/800x300/2d4a3e/e0e0e0?text=Mystery+Lake+Day+1",
+                DateCreated = new DateTime(2024, 7, 20),
+                DateUploaded = new DateTime(2024, 7, 22)
+            },
+            new ImageModel
+            {
+                Id = "img-6",
+                FileName = "coastal-highway",
+                Extension = ".jpg",
+                FileSize = 1572864,
+                Url = "https://placehold.co/400x250/3a5a4e/c0d8c0?text=Coastal+Highway",
+                DateCreated = new DateTime(2024, 7, 30),
+                DateUploaded = new DateTime(2024, 8, 1)
+            },
+            new ImageModel
+            {
+                Id = "img-7",
+                FileName = "great-bear-island",
+                Extension = ".png",
+                FileSize = 4404019,
+                Url = "https://placehold.co/400x250/2a4a6a/b0c8e0?text=Great+Bear+Island",
+                DateCreated = new DateTime(2024, 6, 12),
+                DateUploaded = new DateTime(2024, 6, 15)
+            },
+            new ImageModel
+            {
+                Id = "img-8",
+                FileName = "the-long-dark-cover",
+                Extension = ".webp",
+                FileSize = 913408,
+                Url = "https://placehold.co/800x300/1c3d5a/a9d1e8?text=The+Long+Dark",
+                DateCreated = new DateTime(2024, 3, 28),
+                DateUploaded = new DateTime(2024, 4, 1)
+            }
+        };
+
+        private APIImagesModel GetDummyImages(int pageNumber)
+        {
+            var allImages = _dummyImages.OrderByDescending(i => i.DateUploaded).ToList();
+            int totalPages = (int)Math.Ceiling((double)allImages.Count / ImagesPerPage);
+            var pageImages = allImages.Skip((pageNumber - 1) * ImagesPerPage).Take(ImagesPerPage).ToList();
+
+            return new APIImagesModel
+            {
+                Images = pageImages,
+                MultiplePages = totalPages > 1,
+                PageCount = totalPages,
+                APICalled = true
+            };
+        }
 
         private UserModel? GetDummyUser(string username, string passwordHash)
         {
