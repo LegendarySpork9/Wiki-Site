@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 using LegendarySpork9Wiki.Functions;
@@ -20,6 +21,9 @@ namespace LegendarySpork9Wiki.Components.Pages
 
         [Inject]
         private IJSRuntime JS { get; set; } = default!;
+
+        [Inject]
+        private ProtectedSessionStorage SessionStorage { get; set; } = default!;
 
         private string _username = string.Empty;
         private string _password = string.Empty;
@@ -58,6 +62,10 @@ namespace LegendarySpork9Wiki.Components.Pages
                     User.Username = result.Username;
                     User.Admin = result.Admin;
                     User.DarkMode = result.DarkMode;
+
+                    await SessionStorage.SetAsync("userId", User.UserId);
+                    await SessionStorage.SetAsync("username", User.Username);
+                    await SessionStorage.SetAsync("admin", User.Admin);
 
                     try
                     {
