@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 using Microsoft.JSInterop;
 using LegendarySpork9Wiki.Functions;
 using LegendarySpork9Wiki.Models;
@@ -19,6 +20,9 @@ namespace LegendarySpork9Wiki.Components.Pages
 
         [Inject]
         private NavigationManager Navigation { get; set; } = default!;
+
+        [Inject]
+        private ProtectedSessionStorage SessionStorage { get; set; } = default!;
 
         private string _username = string.Empty;
         private string _password = string.Empty;
@@ -79,6 +83,7 @@ namespace LegendarySpork9Wiki.Components.Pages
                 if (success)
                 {
                     User.Username = _username;
+                    await SessionStorage.SetAsync("username", User.Username);
                     _password = string.Empty;
                     _message = "Settings saved successfully.";
                     _isError = false;
@@ -101,8 +106,12 @@ namespace LegendarySpork9Wiki.Components.Pages
             }
         }
 
-        private void Logout()
+        private async Task Logout()
         {
+            await SessionStorage.DeleteAsync("userId");
+            await SessionStorage.DeleteAsync("username");
+            await SessionStorage.DeleteAsync("admin");
+
             User.UserId = string.Empty;
             User.Username = string.Empty;
             User.Admin = false;
