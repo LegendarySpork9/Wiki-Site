@@ -16,69 +16,96 @@
             <div class="alert alert-danger">@_errorMessage</div>
         }
 
-        <div class="card" style="@StyleConverter.GetCardDarkMode(User.DarkMode)">
-            <div class="card-body">
-                <div class="mb-3">
-                    <label for="title" class="form-label">Title</label>
-                    <input type="text" class="form-control" id="title" @bind="_title"
-                           style="@StyleConverter.GetInputDarkMode(User.DarkMode)" />
-                </div>
+        @if (_previewing)
+        {
+            <article class="wiki-article" style="@StyleConverter.GetCardDarkMode(User.DarkMode)">
+                <header class="article-header">
+                    <h1>@(string.IsNullOrWhiteSpace(_title) ? "Untitled" : _title)</h1>
+                    <div class="article-meta text-muted" style="@StyleConverter.GetTextMutedDarkMode(User.DarkMode)">
+                        <span>By @User.Username</span>
+                        <span class="mx-2">&bull;</span>
+                        <span>Created @DateTime.Now.ToString("dd MMM yyyy")</span>
+                    </div>
+                </header>
 
-                <div class="mb-3">
-                    <label for="category" class="form-label">Category</label>
-                    <select class="form-select" id="category" @bind="_selectedCategoryId"
-                            style="@StyleConverter.GetInputDarkMode(User.DarkMode)">
-                        <option value="">Select a category...</option>
-                        @if (_categories != null)
-                        {
-                            @foreach (var cat in _flatCategories)
-                            {
-                                <option value="@cat.Id">@cat.Name</option>
-                            }
-                        }
-                    </select>
-                </div>
+                <hr />
 
-                <div class="mb-3">
-                    <label for="summary" class="form-label">Summary</label>
-                    <input type="text" class="form-control" id="summary" @bind="_summary"
-                           placeholder="Brief description of this entry"
-                           style="@StyleConverter.GetInputDarkMode(User.DarkMode)" />
+                <div class="article-content">
+                    @((MarkupString)_content)
                 </div>
+            </article>
 
-                <div class="mb-3">
-                    <label for="template" class="form-label">Template</label>
-                    <select class="form-select" id="template" value="@_selectedTemplate"
-                            @onchange="OnTemplateSelected"
-                            disabled="@(!_templateNames.Any())"
-                            style="@StyleConverter.GetInputDarkMode(User.DarkMode)">
-                        <option value="">@(_templateNames.Any() ? "Select a template..." : "No templates available")</option>
-                        @foreach (var template in _templateNames)
-                        {
-                            <option value="@template">@template</option>
-                        }
-                    </select>
-                </div>
-
-                <div class="mb-3">
-                    <label for="content" class="form-label">Content (HTML)</label>
-                    <textarea class="form-control" id="content" rows="15" @bind="_content"
-                              style="@StyleConverter.GetInputDarkMode(User.DarkMode)"></textarea>
-                </div>
-
-                <button class="btn btn-primary" @onclick="HandleCreate" disabled="@_saving">
-                    @if (_saving)
-                    {
-                        <span class="spinner-border spinner-border-sm me-2" role="status"></span>
-                        <span>Creating...</span>
-                    }
-                    else
-                    {
-                        <span>Create Entry</span>
-                    }
-                </button>
-                <a href="/" class="btn btn-outline-secondary ms-2">Cancel</a>
+            <div class="mt-3">
+                <button class="btn btn-outline-secondary" @onclick="() => _previewing = false">Back to Edit</button>
             </div>
-        </div>
+        }
+        else
+        {
+            <div class="card" style="@StyleConverter.GetCardDarkMode(User.DarkMode)">
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="title" class="form-label">Title</label>
+                        <input type="text" class="form-control" id="title" @bind="_title"
+                               style="@StyleConverter.GetInputDarkMode(User.DarkMode)" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="category" class="form-label">Category</label>
+                        <select class="form-select" id="category" @bind="_selectedCategoryId"
+                                style="@StyleConverter.GetInputDarkMode(User.DarkMode)">
+                            <option value="">Select a category...</option>
+                            @if (_categories != null)
+                            {
+                                @foreach (var cat in _flatCategories)
+                                {
+                                    <option value="@cat.Id">@cat.Name</option>
+                                }
+                            }
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="summary" class="form-label">Summary</label>
+                        <input type="text" class="form-control" id="summary" @bind="_summary"
+                               placeholder="Brief description of this entry"
+                               style="@StyleConverter.GetInputDarkMode(User.DarkMode)" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="template" class="form-label">Template</label>
+                        <select class="form-select" id="template" value="@_selectedTemplate"
+                                @onchange="OnTemplateSelected"
+                                disabled="@(!_templateNames.Any())"
+                                style="@StyleConverter.GetInputDarkMode(User.DarkMode)">
+                            <option value="">@(_templateNames.Any() ? "Select a template..." : "No templates available")</option>
+                            @foreach (var template in _templateNames)
+                            {
+                                <option value="@template">@template</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="content" class="form-label">Content (HTML)</label>
+                        <textarea class="form-control" id="content" rows="15" @bind="_content"
+                                  style="@StyleConverter.GetInputDarkMode(User.DarkMode)"></textarea>
+                    </div>
+
+                    <button class="btn btn-primary" @onclick="HandleCreate" disabled="@_saving">
+                        @if (_saving)
+                        {
+                            <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                            <span>Creating...</span>
+                        }
+                        else
+                        {
+                            <span>Create Entry</span>
+                        }
+                    </button>
+                    <button class="btn btn-outline-info ms-2" @onclick="() => _previewing = true">Preview</button>
+                    <a href="/" class="btn btn-outline-secondary ms-2">Cancel</a>
+                </div>
+            </div>
+        }
     }
 </div>

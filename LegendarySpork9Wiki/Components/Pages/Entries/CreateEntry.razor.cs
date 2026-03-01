@@ -31,6 +31,7 @@ namespace LegendarySpork9Wiki.Components.Pages.Entries
         private string _content = string.Empty;
         private string _errorMessage = string.Empty;
         private bool _saving;
+        private bool _previewing;
 
         protected override async Task OnInitializedAsync()
         {

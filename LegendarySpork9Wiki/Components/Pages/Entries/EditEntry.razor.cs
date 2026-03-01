@@ -28,6 +28,7 @@ namespace LegendarySpork9Wiki.Components.Pages.Entries
         private bool _isError;
         private bool _loading = true;
         private bool _saving;
+        private bool _previewing;
 
         protected override async Task OnInitializedAsync()
         {
