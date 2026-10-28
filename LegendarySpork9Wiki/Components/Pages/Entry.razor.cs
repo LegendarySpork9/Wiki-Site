@@ -15,6 +15,9 @@ namespace LegendarySpork9Wiki.Components.Pages
         [Inject]
         private UserModel User { get; set; } = default!;
 
+        [Inject]
+        private HtmlSanitiserService Sanitiser { get; set; } = default!;
+
         private EntryModel? _entry;
         private bool _loading = true;
 

@@ -48,7 +48,7 @@
             <hr />
 
             <div class="article-content">
-                @((MarkupString)_entry.Content)
+                @((MarkupString)Sanitiser.Sanitise(_entry.Content))
             </div>
         </article>
     }
