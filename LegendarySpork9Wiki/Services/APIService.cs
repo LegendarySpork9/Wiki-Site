@@ -8,6 +8,7 @@ namespace LegendarySpork9Wiki.Services
     {
         private readonly SharedSettingsModel _settings;
         private readonly LoggerService _logger;
+        private readonly SemaphoreSlim _tokenLock = new(1, 1);
         private string _bearerToken = string.Empty;
 
         private bool UseDummyData => string.IsNullOrEmpty(_settings.BaseURL);
@@ -23,6 +24,8 @@ namespace LegendarySpork9Wiki.Services
         private async Task<string> GetBearerTokenAsync()
         {
             if (UseDummyData) return string.Empty;
+
+            await _tokenLock.WaitAsync();
 
             try
             {
@@ -44,6 +47,10 @@ namespace LegendarySpork9Wiki.Services
             catch (Exception ex)
             {
                 _logger.LogError("Failed to get bearer token", ex);
+            }
+            finally
+            {
+                _tokenLock.Release();
             }
 
             return _bearerToken;
@@ -106,10 +113,7 @@ namespace LegendarySpork9Wiki.Services
 
             try
             {
-                string payloadPath = Path.Combine(_settings.PayloadLocation, "Authorise.json");
-                string payload = File.ReadAllText(payloadPath)
-                    .Replace("{username}", username)
-                    .Replace("{password}", passwordHash);
+                string payload = JsonConvert.SerializeObject(new { username, password = passwordHash });
 
                 string? response = await MakeRequestAsync("users/authorise", Method.Post, payload);
 
@@ -150,10 +154,7 @@ namespace LegendarySpork9Wiki.Services
 
             try
             {
-                string payloadPath = Path.Combine(_settings.PayloadLocation, "UpdateUser.json");
-                string payload = File.ReadAllText(payloadPath)
-                    .Replace("{username}", username)
-                    .Replace("{password}", passwordHash);
+                string payload = JsonConvert.SerializeObject(new { username, password = passwordHash });
 
                 string? response = await MakeRequestAsync($"users/{userId}", Method.Put, payload);
                 return response != null;
@@ -171,9 +172,7 @@ namespace LegendarySpork9Wiki.Services
 
             try
             {
-                string payloadPath = Path.Combine(_settings.PayloadLocation, "UpdateUserSettings.json");
-                string payload = File.ReadAllText(payloadPath)
-                    .Replace("{darkMode}", darkMode.ToString().ToLower());
+                string payload = JsonConvert.SerializeObject(new { darkMode });
 
                 string? response = await MakeRequestAsync($"users/{userId}/settings", Method.Put, payload);
                 return response != null;
@@ -216,12 +215,7 @@ namespace LegendarySpork9Wiki.Services
 
             try
             {
-                string payloadPath = Path.Combine(_settings.PayloadLocation, "CreateCategory.json");
-                string payload = File.ReadAllText(payloadPath)
-                    .Replace("{name}", name)
-                    .Replace("{description}", description)
-                    .Replace("{icon}", icon)
-                    .Replace("{parentCategoryId}", parentCategoryId ?? "");
+                string payload = JsonConvert.SerializeObject(new { name, description, icon, parentCategoryId = parentCategoryId ?? "" });
 
                 string? response = await MakeRequestAsync("categories", Method.Post, payload);
 
@@ -314,13 +308,14 @@ namespace LegendarySpork9Wiki.Services
 
             try
             {
-                string payloadPath = Path.Combine(_settings.PayloadLocation, "CreateEntry.json");
-                string payload = File.ReadAllText(payloadPath)
-                    .Replace("{title}", entry.Title)
-                    .Replace("{content}", entry.Content)
-                    .Replace("{categoryId}", entry.CategoryId)
-                    .Replace("{author}", entry.Author)
-                    .Replace("{summary}", entry.Summary);
+                string payload = JsonConvert.SerializeObject(new
+                {
+                    title = entry.Title,
+                    content = entry.Content,
+                    categoryId = entry.CategoryId,
+                    author = entry.Author,
+                    summary = entry.Summary
+                });
 
                 string? response = await MakeRequestAsync("entries", Method.Post, payload);
 
@@ -343,13 +338,14 @@ namespace LegendarySpork9Wiki.Services
 
             try
             {
-                string payloadPath = Path.Combine(_settings.PayloadLocation, "UpdateEntry.json");
-                string payload = File.ReadAllText(payloadPath)
-                    .Replace("{title}", entry.Title)
-                    .Replace("{content}", entry.Content)
-                    .Replace("{categoryId}", entry.CategoryId)
-                    .Replace("{author}", entry.Author)
-                    .Replace("{summary}", entry.Summary);
+                string payload = JsonConvert.SerializeObject(new
+                {
+                    title = entry.Title,
+                    content = entry.Content,
+                    categoryId = entry.CategoryId,
+                    author = entry.Author,
+                    summary = entry.Summary
+                });
 
                 string? response = await MakeRequestAsync($"entries/{entryId}", Method.Put, payload);
                 return response != null;
@@ -402,12 +398,7 @@ namespace LegendarySpork9Wiki.Services
 
             try
             {
-                string payloadPath = Path.Combine(_settings.PayloadLocation, "RegisterImage.json");
-                string payload = File.ReadAllText(payloadPath)
-                    .Replace("{fileName}", fileName)
-                    .Replace("{extension}", extension)
-                    .Replace("{fileSize}", fileSize.ToString())
-                    .Replace("{url}", url);
+                string payload = JsonConvert.SerializeObject(new { fileName, extension, fileSize, url });
 
                 string? response = await MakeRequestAsync("images", Method.Post, payload);
 

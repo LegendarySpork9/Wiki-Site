@@ -25,6 +25,7 @@ namespace LegendarySpork9Wiki
             builder.Services.AddSingleton<APIService>();
             builder.Services.AddSingleton<TemplateService>();
             builder.Services.AddSingleton<LoggerService>();
+            builder.Services.AddSingleton<HtmlSanitiserService>();
             builder.Services.AddScoped<UserModel>();
             builder.Services.AddHttpContextAccessor();
 

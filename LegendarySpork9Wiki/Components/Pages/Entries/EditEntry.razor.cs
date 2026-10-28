@@ -18,6 +18,9 @@ namespace LegendarySpork9Wiki.Components.Pages.Entries
         [Inject]
         private NavigationManager Navigation { get; set; } = default!;
 
+        [Inject]
+        private HtmlSanitiserService Sanitiser { get; set; } = default!;
+
         private EntryModel? _entry;
         private List<CategoryModel> _flatCategories = new();
         private string _title = string.Empty;

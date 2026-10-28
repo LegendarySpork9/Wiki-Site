@@ -18,6 +18,9 @@ namespace LegendarySpork9Wiki.Components.Pages.Entries
         [Inject]
         private NavigationManager Navigation { get; set; } = default!;
 
+        [Inject]
+        private HtmlSanitiserService Sanitiser { get; set; } = default!;
+
         [SupplyParameterFromQuery]
         public string? CategoryId { get; set; }
 

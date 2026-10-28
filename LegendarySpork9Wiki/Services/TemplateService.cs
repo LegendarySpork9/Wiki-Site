@@ -29,13 +29,14 @@ namespace LegendarySpork9Wiki.Services
         public async Task<string> GetTemplateContent(string name)
         {
             string filePath = Path.Combine(_templatesPath, $"{name}.html");
+            string resolvedPath = Path.GetFullPath(filePath);
 
-            if (!File.Exists(filePath))
+            if (!resolvedPath.StartsWith(Path.GetFullPath(_templatesPath)) || !File.Exists(resolvedPath))
             {
                 return string.Empty;
             }
 
-            return await File.ReadAllTextAsync(filePath);
+            return await File.ReadAllTextAsync(resolvedPath);
         }
     }
 }
